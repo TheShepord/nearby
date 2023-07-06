@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use async_trait::async_trait;
+
+use super::Address;
+
 /// Concrete types implementing this trait represent Bluetooth Peripheral devices.
 /// They provide methods for retrieving device info and running device actions,
 /// such as pairing.
-pub trait Device {
+#[async_trait]
+pub trait Device: Sized {
     /// Retrieve the name advertised by this device.
     fn name(&self) -> Result<String, anyhow::Error>;
+
+    /// Retrieve this device's Bluetooth address information.
+    fn address(&self) -> Address;
+
+    /// Attempt pairing with the peripheral device.
+    async fn pair(&self) -> Result<(), anyhow::Error>;
 }

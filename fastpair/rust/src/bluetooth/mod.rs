@@ -18,18 +18,24 @@
 
 pub mod common;
 
-pub use common::{Adapter, Device};
+pub use common::{Adapter, Address, ClassicAddress, Device};
 
 cfg_if::cfg_if! {
     if #[cfg(windows)] {
         mod windows;
-        use self::windows::BleAdapter;
+        use self::windows::{ClassicDevice, BleAdapter};
     } else {
         mod unsupported;
-        use unsupported::BleAdapter;
+        use unsupported::{ClassicDevice, BleAdapter};
     }
 }
 
 pub async fn default_adapter() -> Result<impl Adapter, anyhow::Error> {
     BleAdapter::default().await
+}
+
+pub async fn new_classic_device(
+    addr: ClassicAddress,
+) -> Result<impl Device, anyhow::Error> {
+    ClassicDevice::new(addr).await
 }
