@@ -55,7 +55,9 @@ use windows::{
 };
 
 use super::BleDevice;
-use crate::bluetooth::common::Adapter;
+use crate::bluetooth::{
+    common::{Adapter, BleAddress, BleAddressKind},
+};
 
 /// Concrete type implementing `Adapter`, used for Windows BLE.
 pub struct BleAdapter {
@@ -176,10 +178,13 @@ impl Adapter for BleAdapter {
                         None
                     }
                     _ => {
-                        let addr = event_args.BluetoothAddress().ok()?;
                         let kind = event_args.BluetoothAddressType().ok()?;
+                        let addr = event_args.BluetoothAddress().ok()?;
 
-                        match BleDevice::from_addr(addr, kind).await {
+                        let kind = BleAddressKind::try_from(kind).ok()?;
+                        let addr = BleAddress::new(addr, kind);
+                        
+                        match BleDevice::new(addr).await {
                             Ok(device) => Some(device),
                             Err(err) => {
                                 warn!("Error creating device: {:?}", err);
