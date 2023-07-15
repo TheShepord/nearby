@@ -29,11 +29,11 @@ impl Adapter for BleAdapter {
         panic!("Unsupported target platform.");
     }
 
-    fn start_scan_devices(&mut self) -> Result<(), anyhow::Error> {
+    fn start_scan(&mut self) -> Result<(), anyhow::Error> {
         panic!("Unsupported target platform.");
     }
 
-    fn stop_scan_devices(&mut self) -> Result<(), anyhow::Error> {
+    fn stop_scan(&mut self) -> Result<(), anyhow::Error> {
         panic!("Unsupported target platform.");
     }
 
