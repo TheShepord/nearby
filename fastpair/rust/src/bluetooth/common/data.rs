@@ -12,13 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Module for shared functionality between all Bluetooth platforms.
-mod adapter;
-mod address;
-mod data;
-mod device;
+pub enum BleDataSection {
+    ServiceData16BitUUid = 0x16,
+}
 
-pub use adapter::*;
-pub use address::*;
-pub use data::*;
-pub use device::*;
+pub struct ServiceData<Uuid: Copy> {
+    uuid: Uuid,
+    data: Vec<u8>,
+}
+
+impl<Uuid: Copy> ServiceData<Uuid> {
+    pub fn new(uuid: Uuid, data: Vec<u8>) -> Self {
+        ServiceData { uuid, data }
+    }
+
+    pub fn get_uuid(&self) -> Uuid {
+        self.uuid
+    }
+
+    pub fn get_data(&self) -> &Vec<u8> {
+        &self.data
+    }
+}

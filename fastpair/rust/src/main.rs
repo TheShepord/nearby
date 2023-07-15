@@ -34,8 +34,8 @@ fn main() -> Result<(), anyhow::Error> {
                 // Dynamic dispatch is necessary here because `BleDevice` and
                 // `ClassicDevice` share the `Device` trait (and thus must have
                 // the same return type for `address()` method). This can be
-                // changed if `Device` trait should exclusively define
-                // cross-platform behavior.
+                // changed later if `Device` trait should exclusively define
+                // shared cross-platform behavior.
                 let classic_addr = match addr {
                     Address::Ble(ble) => ClassicAddress::try_from(ble),
                     Address::Classic(_) => unreachable!(

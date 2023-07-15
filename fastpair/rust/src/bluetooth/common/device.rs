@@ -15,6 +15,7 @@
 use async_trait::async_trait;
 
 use super::Address;
+use crate::bluetooth::common::ServiceData;
 
 /// Concrete types implementing this trait represent Bluetooth Peripheral devices.
 /// They provide methods for retrieving device info and running device actions,
@@ -29,4 +30,6 @@ pub trait Device: Sized {
 
     /// Attempt pairing with the peripheral device.
     async fn pair(&self) -> Result<(), anyhow::Error>;
+
+    fn get_service_data(&self) -> &Vec<ServiceData<u16>>;
 }
