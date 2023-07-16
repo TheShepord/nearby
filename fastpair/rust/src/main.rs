@@ -24,36 +24,37 @@ fn main() -> Result<(), anyhow::Error> {
         adapter.start_scan()?;
 
         while let Ok(ble_device) = adapter.next_device().await {
-            let name = ble_device.name()?;
+            for service_data in ble_device.get_service_data() {
+                let uuid = service_data.get_uuid();
 
-            if name.contains("LE_WF-1000XM3") {
-                println!("FOUND {} ", name);
+                // This is a Fast Pair device.
+                if uuid == 0x2cfe {
+                    let addr: Address = ble_device.address();
 
-                let addr: Address = ble_device.address();
+                    // Dynamic dispatch is necessary here because `BleDevice` and
+                    // `ClassicDevice` share the `Device` trait (and thus must have
+                    // the same return type for `address()` method). This can be
+                    // changed later if `Device` trait should exclusively define
+                    // shared cross-platform behavior.
+                    let classic_addr = match addr {
+                        Address::Ble(ble) => ClassicAddress::try_from(ble),
+                        Address::Classic(_) => unreachable!(
+                            "Address should come from BLE Device, therefore \
+                            shouldn't be Classic."
+                        ),
+                    }?;
 
-                // Dynamic dispatch is necessary here because `BleDevice` and
-                // `ClassicDevice` share the `Device` trait (and thus must have
-                // the same return type for `address()` method). This can be
-                // changed later if `Device` trait should exclusively define
-                // shared cross-platform behavior.
-                let classic_addr = match addr {
-                    Address::Ble(ble) => ClassicAddress::try_from(ble),
-                    Address::Classic(_) => unreachable!(
-                        "Address should come from BLE Device, therefore \
-                        shouldn't be Classic."
-                    ),
-                }?;
+                    let classic_device =
+                        bluetooth::new_classic_device(classic_addr).await?;
 
-                let classic_device =
-                    bluetooth::new_classic_device(classic_addr).await?;
-
-                match classic_device.pair().await {
-                    Ok(_) => {
-                        println!("Pairing success!");
+                    match classic_device.pair().await {
+                        Ok(_) => {
+                            println!("Pairing success!");
+                        }
+                        Err(err) => println!("Error {}", err),
                     }
-                    Err(err) => println!("Error {}", err),
+                    break;
                 }
-                break;
             }
         }
         println!("Done scanning");
