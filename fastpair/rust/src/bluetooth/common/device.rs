@@ -21,7 +21,7 @@ use crate::bluetooth::common::ServiceData;
 /// They provide methods for retrieving device info and running device actions,
 /// such as pairing.
 #[async_trait]
-pub trait Device: Sized {
+pub trait Device: Sized + Send + Sync {
     /// Retrieve the name advertised by this device.
     fn name(&self) -> Result<String, anyhow::Error>;
 

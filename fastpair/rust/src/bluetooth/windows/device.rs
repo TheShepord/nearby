@@ -127,8 +127,6 @@ impl Device for ClassicDevice {
             println!("Device can't pair");
             Ok(())
         } else {  
-            println!("protection {:?}", pair_info.ProtectionLevel()?);
-
             let custom = pair_info.Custom()?;
             custom.PairingRequested(&TypedEventHandler::new(
                 |_custom: &Option<DeviceInformationCustomPairing>, 
