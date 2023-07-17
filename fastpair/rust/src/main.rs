@@ -26,10 +26,17 @@ use futures::{
 
 mod bluetooth;
 
-use bluetooth::{Adapter, Address, BleAdapter, ClassicAddress, Device};
+use bluetooth::{Adapter, Address, ClassicAddress, Device};
 
-async fn get_user_input(
-    device_vec: Arc<Mutex<Vec<<BleAdapter as Adapter>::Device>>>,
+// @marshallpierce This is the suggested solution for the original error, but this is invalid.
+// async fn get_user_input(
+//     device_vec: Arc<Mutex<Vec<<impl Adapter as Adapter>::Device>>>,
+// ) -> Result<(), anyhow::Error> {
+
+// @marshallpierce Trying to turn this into a generic helps this function compile, but I still
+// don't know how to call it.
+async fn get_user_input<A: Adapter<Device = impl Device>>(
+    device_vec: Arc<Mutex<Vec<A::Device>>>,
 ) -> Result<(), anyhow::Error> {
     let mut buffer = String::new();
     loop {
@@ -89,7 +96,11 @@ fn main() -> Result<(), anyhow::Error> {
         {
             // Process user input in a separate thread.
             let device_vec = device_vec.clone();
-            thread::spawn(|| block_on(get_user_input(device_vec)));
+
+            // @marshallpierce I don't know how to call this.
+            thread::spawn(|| {
+                block_on(get_user_input::<impl Adapter>(device_vec))
+            });
         }
 
         let mut counter: u32 = 0;
